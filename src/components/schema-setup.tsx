@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 export function SchemaSetup({
   sql,
   editorUrl,
+  title = "Prepare the tables",
+  detail,
 }: {
   sql: string;
   editorUrl: string;
+  title?: string;
+  detail?: ReactNode;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -33,13 +37,15 @@ export function SchemaSetup({
   return (
     <div className="w-full max-w-[460px]">
       <p className="text-[11px] tracking-[0.2em] text-muted uppercase">One step left</p>
-      <h2 className="mt-3 font-display text-4xl tracking-tight text-ink">
-        Prepare the tables
-      </h2>
+      <h2 className="mt-3 font-display text-4xl tracking-tight text-ink">{title}</h2>
       <p className="mt-3 text-sm leading-6 text-muted">
-        GP Inventory keeps its own tables, all named with <span className="text-ink">gp_</span>,
-        inside the connected Supabase project. Run the migration once in the SQL editor,
-        then come back and create the admin.
+        {detail ?? (
+          <>
+            GP Inventory keeps its own tables, all named with <span className="text-ink">gp_</span>,
+            inside the connected Supabase project. Run the migration once in the SQL editor,
+            then come back and create the admin.
+          </>
+        )}
       </p>
       <div className="mt-6 flex flex-wrap gap-3">
         <a
