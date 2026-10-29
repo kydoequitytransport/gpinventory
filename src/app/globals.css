@@ -1,26 +1,66 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #eef1f4;
+  --paper-deep: #e1e5ea;
+  --card: #ffffff;
+  --ink: #101114;
+  --line: #d5dae1;
+  --copper: #e10600;
+  --copper-deep: #c8102e;
+  --moss: #1d6b4f;
+  --muted: #5c6570;
+  --danger: #9f1239;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --color-paper: var(--paper);
+  --color-paper-deep: var(--paper-deep);
+  --color-card: var(--card);
+  --color-ink: var(--ink);
+  --color-line: var(--line);
+  --color-copper: var(--copper);
+  --color-copper-deep: var(--copper-deep);
+  --color-moss: var(--moss);
+  --color-muted: var(--muted);
+  --color-danger: var(--danger);
+  --font-sans: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-display-face), "Arial Narrow", sans-serif;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+}
+
+.font-display {
+  letter-spacing: 0.03em;
+  line-height: 0.92;
+  text-transform: uppercase;
+}
+
+::selection {
+  background: #f6c9ce;
+}
+
+.floor-grid {
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.floor-glow {
+  background:
+    radial-gradient(ellipse at 12% 0%, rgba(225, 6, 0, 0.42), transparent 46%),
+    radial-gradient(ellipse at 100% 100%, rgba(255, 255, 255, 0.05), transparent 40%);
+}
+
+.desk-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow:
+    0 1px 0 rgba(16, 17, 20, 0.04),
+    0 16px 40px rgba(16, 17, 20, 0.05);
 }
