@@ -1,9 +1,11 @@
 import { cache } from "react";
+import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, Role, WorkspaceStats } from "@/lib/types";
 
 export const getCurrentUser = cache(async (): Promise<Profile> => {
+  await connection();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
 
