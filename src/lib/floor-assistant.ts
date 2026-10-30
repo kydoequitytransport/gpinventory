@@ -186,11 +186,7 @@ export function sanitizeReply(value: unknown, role: Role): FloorReply | null {
     if (href === "/team" && role !== "admin") return [];
     const label = clip(item.label, 40);
     if (!label) return [];
-    const invoiceStatus = clip(item.invoiceStatus, 20);
-    const tab =
-      href === "/invoices" && (invoiceStatus === "draft" || invoiceStatus === "approved" || invoiceStatus === "voided")
-        ? invoiceStatus
-        : undefined;
+    const tab = href === "/invoices" ? invoiceTab(clip(item.invoiceStatus, 20)) : undefined;
     return [{ label, href, openDraft: href === "/invoices" && item.openDraft === true, invoiceStatus: tab }];
   });
   return { answer, actions };
@@ -368,6 +364,11 @@ function count(value: unknown) {
   const parsed = Math.round(Number(value));
   if (!Number.isFinite(parsed) || parsed < 0) return 0;
   return Math.min(parsed, 10000);
+}
+
+function invoiceTab(value: string): "draft" | "approved" | "voided" | undefined {
+  if (value === "draft" || value === "approved" || value === "voided") return value;
+  return undefined;
 }
 
 function clip(value: unknown, max: number) {
