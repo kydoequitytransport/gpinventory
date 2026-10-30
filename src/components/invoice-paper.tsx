@@ -23,6 +23,7 @@ export function InvoicePaper({
   onSave,
   onApprove,
   onVoid,
+  onMarkPaid,
   onEdit,
 }: {
   invoice: Invoice;
@@ -33,6 +34,7 @@ export function InvoicePaper({
   onSave: (invoice: Invoice) => Invoice;
   onApprove: (invoice: Invoice) => void;
   onVoid: (invoice: Invoice) => void;
+  onMarkPaid: (invoice: Invoice) => void;
   onEdit?: () => void;
 }) {
   const [draft, setDraft] = useState(invoice);
@@ -42,6 +44,7 @@ export function InvoicePaper({
   const canWrite = draft.status === "draft";
   const isAdmin = role === "admin";
   const canApprove = isAdmin && kind === "general" && canWrite && draft.id !== "";
+  const canMarkPaid = isAdmin && draft.status === "approved" && draft.id !== "";
   const canVoid =
     isAdmin &&
     kind === "general" &&
@@ -101,7 +104,15 @@ export function InvoicePaper({
 
   const title = kind === "general" ? "General form" : "Delivery receipt";
   const statusLabel =
-    draft.status === "draft" ? "Pending" : draft.status === "voided" ? "Void" : "Approved";
+    draft.status === "draft"
+      ? "Pending"
+      : draft.status === "voided"
+        ? "Void"
+        : draft.status === "fully_paid"
+          ? "Fully paid"
+          : draft.status === "partially_paid"
+            ? "Partially paid"
+            : "Approved";
   const remaining = Math.max(draft.net - draft.paid, 0);
 
   return (
@@ -160,9 +171,11 @@ export function InvoicePaper({
                   className={
                     draft.status === "voided"
                       ? "text-danger"
-                      : draft.status === "approved"
-                        ? "text-moss"
-                        : "text-[#0f8f7a]"
+                      : draft.status === "fully_paid" || draft.status === "partially_paid"
+                        ? "text-[#0f8f7a]"
+                        : draft.status === "approved"
+                          ? "text-moss"
+                          : "text-[#0f8f7a]"
                   }
                 >
                   {statusLabel}
@@ -321,6 +334,15 @@ export function InvoicePaper({
                 className="h-10 rounded-lg border border-[#ffb4b8] px-4 text-sm text-[#ffb4b8]"
               >
                 Void
+              </button>
+            ) : null}
+            {canMarkPaid && !confirmVoid ? (
+              <button
+                type="button"
+                onClick={() => onMarkPaid(priceInvoice(draft))}
+                className="h-10 rounded-lg bg-moss px-4 text-sm font-medium text-white"
+              >
+                Mark as paid
               </button>
             ) : null}
             {canApprove && !confirmVoid ? (

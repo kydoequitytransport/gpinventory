@@ -35,7 +35,7 @@ export async function askFloor(question: string, facts: FloorFacts, role: Role):
             "Never say facts, JSON, packet, or nakalista. If a name is missing, say it is not on this floor.",
             floorGuide(),
             "Return JSON {\"answer\":\"...\",\"actions\":[{\"label\":\"...\",\"href\":\"...\",\"openDraft\":false}]}.",
-            "At most 3 actions. href must be one of /dashboard /invoices /products /products/categories /inventory /inventory/purchase-requests /inventory/purchase-requests/new /team.",
+            "At most 3 actions. href must be one of /dashboard /invoices /sales /products /products/categories /inventory /inventory/purchase-requests /inventory/purchase-requests/new /team.",
             "Set openDraft true only for a new invoice.",
           ].join(" "),
         },

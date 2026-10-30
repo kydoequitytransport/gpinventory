@@ -47,6 +47,7 @@ export type FloorFacts = {
 const pages = [
   "/dashboard",
   "/invoices",
+  "/sales",
   "/products",
   "/products/categories",
   "/inventory",
@@ -196,6 +197,7 @@ export function floorGuide() {
   return [
     "Dashboard shows sales, balances, and due dates from the invoices on this floor.",
     "Invoice holds drafts. An admin approves or voids. New draft can be filled from a photo.",
+    "Sales report groups fully paid and partially paid invoices by day, month, product, and transaction.",
     "Products is the catalog. Categories sit under Products.",
     "Inventory is the on-hand count. For Re-stock means on hand is at or under the minimum.",
     "Purchase Request, under Inventory, is the restock list.",
@@ -235,7 +237,10 @@ function salesReply(facts: FloorFacts, local: boolean): FloorReply {
     answer: local
       ? `Benta ngayong araw: ${today}. Benta ngayong ${facts.monthName}: ${month}. Hindi kasama ang voided.`
       : `Today's sales are ${today}. ${facts.monthName} sales are ${month}. Voided invoices are left out.`,
-    actions: [{ label: "Open dashboard", href: "/dashboard" }],
+    actions: [
+      { label: "Open dashboard", href: "/dashboard" },
+      { label: "Sales report", href: "/sales" },
+    ],
   };
 }
 

@@ -8,6 +8,7 @@ import { initials } from "@/lib/format";
 const links = [
   { href: "/dashboard", label: "Dashboard", adminOnly: false, exact: false },
   { href: "/invoices", label: "Invoice", adminOnly: false, exact: false },
+  { href: "/sales", label: "Sales report", adminOnly: false, exact: false },
 ] as const;
 
 const productLinks = [

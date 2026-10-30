@@ -198,6 +198,23 @@ export function InvoiceBoard({
     setPage(1);
   }
 
+  function markPaid(next: Invoice) {
+    if (role !== "admin") return;
+    const existing = records.find((item) => item.id === next.id);
+    if (!existing || existing.status !== "approved") return;
+    const saved: Invoice = {
+      ...next,
+      status: "fully_paid",
+      paid: next.net,
+      actor: actorName,
+      actedAt: stamp(),
+    };
+    publishInvoices(records.map((item) => (item.id === saved.id ? saved : item)));
+    setOpen(null);
+    setStatus("fully_paid");
+    setPage(1);
+  }
+
   function voidInvoice(next: Invoice) {
     if (role !== "admin") return;
     const existing = records.find((item) => item.id === next.id);
@@ -448,6 +465,7 @@ export function InvoiceBoard({
             onSave={saveInvoice}
             onApprove={approveInvoice}
             onVoid={voidInvoice}
+            onMarkPaid={markPaid}
             onEdit={
               paper.status === "draft" ? () => setOpen({ id: paper.id, kind: "edit" }) : undefined
             }
