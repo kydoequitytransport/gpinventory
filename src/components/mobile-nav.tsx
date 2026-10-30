@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { signOut } from "@/app/actions/auth";
 import { Mark } from "@/components/mark";
 import { SideLink } from "@/components/side-link";
@@ -29,6 +30,11 @@ export function MobileNav({
   role: "admin" | "employee";
 }) {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    setOpen(false);
+  }, [pathname]);
 
   useEffect(() => {
     if (!open) return;
