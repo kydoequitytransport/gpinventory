@@ -35,8 +35,8 @@ export function PurchaseRequestBoard({ requests }: { requests: PurchaseRequest[]
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] border-t border-line text-left text-sm">
+      <div className="sm:overflow-x-auto">
+        <table className="gp-mobile-rows w-full min-w-[760px] border-t border-line text-left text-sm">
           <thead className="text-[11px] tracking-[0.14em] text-muted uppercase">
             <tr>
               <th className="px-4 py-3 font-medium">PR No.</th>
@@ -59,11 +59,19 @@ export function PurchaseRequestBoard({ requests }: { requests: PurchaseRequest[]
             ) : (
               visible.map((request) => (
                 <tr key={request.id} className="border-t border-line">
-                  <td className="px-4 py-4 font-medium">{request.prNo}</td>
-                  <td className="px-4 py-4">{request.prDate}</td>
-                  <td className="px-4 py-4">{request.shipDateFrom}</td>
-                  <td className="px-4 py-4">{request.shipDateTo}</td>
-                  <td className="px-4 py-4">
+                  <td className="px-4 py-4 font-medium" data-label="PR No.">
+                    {request.prNo}
+                  </td>
+                  <td className="px-4 py-4" data-label="PR Date">
+                    {request.prDate}
+                  </td>
+                  <td className="px-4 py-4" data-label="Ship from">
+                    {request.shipDateFrom}
+                  </td>
+                  <td className="px-4 py-4" data-label="Ship to">
+                    {request.shipDateTo}
+                  </td>
+                  <td className="px-4 py-4 break-words" data-label="Products">
                     {request.lines.map((line) => line.productName).filter(Boolean).join(", ") || "—"}
                   </td>
                   <td className="px-4 py-4">

@@ -137,8 +137,8 @@ export function ProductList({
           </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[980px] border-t border-line text-left text-sm">
+        <div className="sm:overflow-x-auto">
+          <table className="gp-mobile-rows w-full min-w-[980px] border-t border-line text-left text-sm">
             <thead className="text-[11px] tracking-[0.14em] text-muted uppercase">
               <tr>
                 <th className="bg-paper px-4 py-3 font-medium">ID</th>
@@ -160,8 +160,10 @@ export function ProductList({
               ) : (
                 visible.map((product) => (
                   <tr key={product.id} className="border-t border-line align-top">
-                    <td className="bg-paper px-4 py-5 text-muted">{product.id}</td>
-                    <td className="px-4 py-5">
+                    <td className="bg-paper px-4 py-5 text-muted" data-label="ID">
+                      {product.id}
+                    </td>
+                    <td className="px-4 py-5" data-label="Image">
                       {product.imageUrl ? (
                         // Arbitrary catalog URLs are not in the image allowlist.
                         // eslint-disable-next-line @next/next/no-img-element
@@ -176,7 +178,7 @@ export function ProductList({
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-5">
+                    <td className="px-4 py-5" data-label="Name">
                       <p className="font-medium">{product.name}</p>
                       {product.description ? (
                         <p className="mt-1 max-w-xs text-xs leading-5 text-muted">{product.description}</p>
@@ -191,7 +193,7 @@ export function ProductList({
                         </div>
                       </dl>
                     </td>
-                    <td className="px-4 py-5">
+                    <td className="px-4 py-5" data-label="Description">
                       <dl className="grid gap-1 text-xs leading-5">
                         <div>
                           <span className="text-muted">Category: </span>
@@ -205,7 +207,7 @@ export function ProductList({
                         <div className="text-muted">Add-ons: 0</div>
                       </dl>
                     </td>
-                    <td className="px-4 py-5">
+                    <td className="px-4 py-5" data-label="Price">
                       <dl className="grid gap-1 text-xs leading-5">
                         <PriceLine label="Selling price" value={money.format(product.sellingPrice)} />
                         <PriceLine label="Cost" value={money.format(product.cost)} />
@@ -215,7 +217,7 @@ export function ProductList({
                         <PriceLine label="Total qty sold" value={qty.format(product.totalQtySold)} />
                       </dl>
                     </td>
-                    <td className="px-4 py-5">
+                    <td className="px-4 py-5" data-label="Basic settings">
                       <div className="grid gap-1.5 text-xs">
                         <Flag on={product.visibleToCustomer} label="Visible to customer" />
                         <Flag on={product.trackQuantity} label="Track quantity" />
@@ -224,7 +226,7 @@ export function ProductList({
                         <Flag on={product.isAddon} label="Is add-on" />
                       </div>
                     </td>
-                    <td className="px-4 py-5">
+                    <td className="px-4 py-5" data-label="Created since">
                       <p>{shortDate(product.createdAt)}</p>
                       {admin ? (
                         <div className="mt-3 flex flex-col items-start gap-2">

@@ -265,8 +265,8 @@ export function InvoiceBoard({
         </div>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[1080px] border-collapse text-left">
+      <div className="sm:overflow-x-auto">
+        <table className="gp-mobile-rows w-full min-w-[1080px] border-collapse text-left">
           <thead>
             <tr className="border-b border-line text-[11px] tracking-[0.16em] text-muted uppercase">
               <th className="w-12 px-4 py-3 font-medium">
@@ -311,15 +311,17 @@ export function InvoiceBoard({
                       className="size-4 accent-copper-deep"
                     />
                   </td>
-                  <td className="px-3 py-5 text-sm font-medium tabular-nums">{invoice.id}</td>
-                  <td className="px-3 py-5">
+                  <td className="px-3 py-5 text-sm font-medium tabular-nums" data-label="ID">
+                    {invoice.id}
+                  </td>
+                  <td className="px-3 py-5" data-label="Invoice">
                     <p className="text-sm font-semibold tracking-wide text-copper-deep">
                       {invoice.voucherNo}
                     </p>
                     <p className="mt-2 max-w-56 text-sm leading-5 text-ink">{invoice.customer}</p>
                     <p className="mt-1 text-xs text-muted">Attn: {invoice.attention}</p>
                   </td>
-                  <td className="px-3 py-5">
+                  <td className="px-3 py-5" data-label="Transaction">
                     <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1 text-sm">
                       <dt className="text-muted">Qty</dt>
                       <dd className="text-right tabular-nums">{formatQty(invoice.totalQty)}</dd>
@@ -338,10 +340,10 @@ export function InvoiceBoard({
                     </dl>
                     <p className="mt-3 text-xs text-muted">Acquisition: {invoice.acquisition}</p>
                   </td>
-                  <td className="px-3 py-5">
+                  <td className="px-3 py-5" data-label="Equipment">
                     <ProductList products={productNames(invoice)} />
                   </td>
-                  <td className="px-3 py-5 text-sm text-muted">
+                  <td className="px-3 py-5 text-sm text-muted" data-label="Remark">
                     {invoice.internalRemark || "—"}
                   </td>
                   <td className="px-4 py-5">

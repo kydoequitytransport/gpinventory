@@ -7,10 +7,12 @@ export function SideLink({
   href,
   label,
   exact = false,
+  onClick,
 }: {
   href: string;
   label: string;
   exact?: boolean;
+  onClick?: () => void;
 }) {
   const pathname = usePathname();
   const active = exact ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
@@ -19,6 +21,7 @@ export function SideLink({
     <Link
       href={href}
       aria-current={active ? "page" : undefined}
+      onClick={onClick}
       className={`rounded-xl px-3 py-2 text-sm transition ${
         active
           ? "bg-white/10 text-white"

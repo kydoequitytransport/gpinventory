@@ -61,8 +61,8 @@ export function CategoryBoard({
       ) : null}
 
       <section className="desk-card overflow-hidden rounded-[28px]">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
+        <div className="sm:overflow-x-auto">
+          <table className="gp-mobile-rows w-full min-w-[760px] text-left text-sm">
             <thead className="text-[11px] tracking-[0.14em] text-muted uppercase">
               <tr>
                 <th className="bg-paper px-4 py-3 font-medium">ID</th>
@@ -118,16 +118,24 @@ function CategoryRow({
   if (!admin) {
     return (
       <tr className="border-t border-line">
-        <td className="bg-paper px-4 py-4 text-muted">{category.id}</td>
-        <td className="px-4 py-4">
+        <td className="bg-paper px-4 py-4 text-muted" data-label="ID">
+          {category.id}
+        </td>
+        <td className="px-4 py-4" data-label="Picture">
           <Picture url={category.pictureUrl} />
         </td>
-        <td className="px-4 py-4 font-medium">{category.name}</td>
-        <td className="px-4 py-4">{category.orderSequence}</td>
-        <td className="px-4 py-4">
+        <td className="px-4 py-4 font-medium" data-label="Name">
+          {category.name}
+        </td>
+        <td className="px-4 py-4" data-label="Order sequence">
+          {category.orderSequence}
+        </td>
+        <td className="px-4 py-4" data-label="Shown in list">
           <Mark on={category.shownInList} />
         </td>
-        <td className="px-4 py-4">{category.productCount}</td>
+        <td className="px-4 py-4" data-label="Products">
+          {category.productCount}
+        </td>
       </tr>
     );
   }

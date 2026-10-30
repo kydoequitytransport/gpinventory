@@ -175,8 +175,8 @@ export function PurchaseRequestForm({
           Add for re-stock{restockLeft > 0 ? ` (${restockLeft})` : ""}
         </button>
       </div>
-      <div className="mt-3 overflow-x-auto">
-        <table className="w-full min-w-[1080px] border-t border-line text-left text-sm">
+      <div className="mt-3 sm:overflow-x-auto">
+        <table className="gp-mobile-rows w-full min-w-[1080px] border-t border-line text-left text-sm">
           <thead className="text-[11px] tracking-[0.08em] text-muted uppercase">
             <tr>
               <th className="w-10 px-2 py-3 font-medium">#</th>
@@ -202,8 +202,10 @@ export function PurchaseRequestForm({
               const product = products.find((item) => item.id === line.productId) ?? null;
               return (
                 <tr key={line.key} className="border-t border-line align-top">
-                  <td className="px-2 py-3 text-muted">{index + 1}</td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3 text-muted" data-label="#">
+                    {index + 1}
+                  </td>
+                  <td className="px-2 py-3" data-label="Product details">
                     <ProductSearch
                       products={products}
                       query={line.query}
@@ -235,7 +237,7 @@ export function PurchaseRequestForm({
                       <div>Max Threshold: —</div>
                     </dl>
                   </td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3" data-label="Quantity sold">
                     <QtyInput
                       label={`Quantity sold on row ${index + 1}`}
                       value={line.qtySold}
@@ -243,7 +245,7 @@ export function PurchaseRequestForm({
                       onChange={(qtySold) => patchLine(line.key, { qtySold }, true)}
                     />
                   </td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3" data-label="Del. lead time (days)">
                     <QtyInput
                       label={`Lead time on row ${index + 1}`}
                       value={line.leadTimeDays}
@@ -253,14 +255,14 @@ export function PurchaseRequestForm({
                       }
                     />
                   </td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3" data-label="Suggested re-order qty">
                     <QtyInput
                       label={`Suggested reorder on row ${index + 1}`}
                       value={line.suggestedQty}
                       onChange={(suggestedQty) => patchLine(line.key, { suggestedQty }, false)}
                     />
                   </td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3" data-label="Last delivery date">
                     <input
                       type="date"
                       disabled
@@ -268,7 +270,7 @@ export function PurchaseRequestForm({
                       className={`${fieldClass} bg-paper text-muted`}
                     />
                   </td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3" data-label="Last delivery quantity">
                     <input
                       type="number"
                       disabled
@@ -276,7 +278,7 @@ export function PurchaseRequestForm({
                       className={`${fieldClass} bg-paper text-muted`}
                     />
                   </td>
-                  <td className="px-2 py-3">
+                  <td className="px-2 py-3" data-label="Qty request">
                     <QtyInput
                       label={`Quantity request on row ${index + 1}`}
                       value={line.qtyRequest}

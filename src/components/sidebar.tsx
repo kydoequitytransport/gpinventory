@@ -1,5 +1,6 @@
 import { signOut } from "@/app/actions/auth";
 import { Mark } from "@/components/mark";
+import { MobileNav } from "@/components/mobile-nav";
 import { SideLink } from "@/components/side-link";
 import { getCurrentUser } from "@/lib/auth";
 import { initials } from "@/lib/format";
@@ -24,8 +25,10 @@ export async function Sidebar() {
   const visible = links.filter((link) => !link.adminOnly || profile.role === "admin");
 
   return (
-    <aside className="sticky top-0 z-20 flex items-center gap-3 bg-ink px-4 py-3 text-white md:h-screen md:flex-col md:items-stretch md:justify-between md:px-5 md:py-6">
-      <div className="min-w-0 md:flex md:min-h-0 md:flex-1 md:flex-col">
+    <>
+      <MobileNav fullName={profile.full_name} role={profile.role} />
+      <aside className="sticky top-0 z-20 hidden h-screen flex-col justify-between bg-ink px-5 py-6 text-white md:flex">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <div className="flex items-center gap-3">
           <Mark />
           <div className="min-w-0">
@@ -35,7 +38,7 @@ export async function Sidebar() {
             </p>
           </div>
         </div>
-        <nav className="mt-0 hidden md:mt-10 md:flex md:min-h-0 md:flex-1 md:flex-col md:gap-1 md:overflow-y-auto">
+        <nav className="mt-10 flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto">
           <p className="px-3 pb-2 text-[11px] tracking-[0.18em] text-[#8f877d] uppercase">
             Workspace
           </p>
@@ -66,30 +69,11 @@ export async function Sidebar() {
         </nav>
       </div>
 
-      <nav className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto md:hidden">
-        {visible.map((link) => (
-          <SideLink key={link.href} href={link.href} label={link.label} exact={link.exact} />
-        ))}
-        <span className="shrink-0 px-2 text-[10px] tracking-[0.14em] text-[#8f877d] uppercase">
-          Products
-        </span>
-        {productLinks.map((link) => (
-          <SideLink key={link.href} href={link.href} label={link.label} exact={link.exact} />
-        ))}
-        <span className="shrink-0 px-2 text-[10px] tracking-[0.14em] text-[#8f877d] uppercase">
-          Inventory
-        </span>
-        {inventoryLinks.map((link) => (
-          <SideLink key={link.href} href={link.href} label={link.label} exact={link.exact} />
-        ))}
-        {profile.role === "admin" ? <SideLink href="/team" label="Team" /> : null}
-      </nav>
-
-      <div className="flex items-center gap-3 md:border-t md:border-white/10 md:pt-5">
+      <div className="flex items-center gap-3 border-t border-white/10 pt-5">
         <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/10 text-xs font-medium">
           {initials(profile.full_name)}
         </span>
-        <div className="hidden min-w-0 flex-1 sm:block">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm">{profile.full_name}</p>
           <p
             className={`truncate text-xs ${
@@ -109,6 +93,7 @@ export async function Sidebar() {
         </form>
       </div>
     </aside>
+    </>
   );
 }
 

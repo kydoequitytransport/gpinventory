@@ -364,8 +364,8 @@ export function InvoiceForm({
             <p className="mt-1 text-xs text-muted">
               Saved lines are replaced by editing them here, then saving the draft again.
             </p>
-            <div className="mt-3 overflow-x-auto">
-              <table className="w-full min-w-[1040px] border-collapse text-sm">
+            <div className="mt-3 sm:overflow-x-auto">
+              <table className="gp-mobile-rows w-full min-w-[1040px] border-collapse text-sm">
                 <thead>
                   <tr className="bg-paper text-left text-[11px] tracking-[0.12em] text-muted uppercase">
                     <th className="border border-line px-2 py-2 font-medium">#</th>
@@ -388,7 +388,9 @@ export function InvoiceForm({
                       item.unitPrice == null ? null : lineAmounts(item, draft.vatCode);
                     return (
                       <tr key={item.id} className="align-top">
-                        <td className="border border-line px-2 py-2 tabular-nums">{index + 1}</td>
+                        <td className="border border-line px-2 py-2 tabular-nums" data-label="#">
+                          {index + 1}
+                        </td>
                         <td className="border border-line px-2 py-2 align-middle">
                           {item.imageUrl ? (
                             // The address was copied from the product when this line was chosen.
@@ -400,7 +402,7 @@ export function InvoiceForm({
                             />
                           ) : null}
                         </td>
-                        <td className="border border-line px-2 py-2">
+                        <td className="border border-line px-2 py-2" data-label="Product">
                           <input
                             value={productQuery?.id === item.id ? productQuery.text : item.name}
                             onChange={(event) => setProductQuery({ id: item.id, text: event.target.value })}
@@ -449,7 +451,7 @@ export function InvoiceForm({
                             </div>
                           </dl>
                         </td>
-                        <td className="border border-line px-2 py-2">
+                        <td className="border border-line px-2 py-2" data-label="Quantity">
                           <input
                             type="number"
                             min={0}
@@ -460,7 +462,7 @@ export function InvoiceForm({
                             className={`${control} w-20 text-right`}
                           />
                         </td>
-                        <td className="border border-line px-2 py-2">
+                        <td className="border border-line px-2 py-2" data-label="Code / serial">
                           <input
                             value={item.barcode}
                             onChange={(event) => {
@@ -473,7 +475,7 @@ export function InvoiceForm({
                             className={`${control} w-28`}
                           />
                         </td>
-                        <td className="border border-line px-2 py-2">
+                        <td className="border border-line px-2 py-2" data-label="Price">
                           <input
                             type="number"
                             min={0}
@@ -486,7 +488,7 @@ export function InvoiceForm({
                             className={`${control} w-24 text-right`}
                           />
                         </td>
-                        <td className="border border-line px-2 py-2">
+                        <td className="border border-line px-2 py-2" data-label="% Discount">
                           <input
                             type="number"
                             min={0}
@@ -498,10 +500,10 @@ export function InvoiceForm({
                             className={`${control} w-20 text-right`}
                           />
                         </td>
-                        <MoneyCell value={amounts?.discountAmt} />
-                        <MoneyCell value={amounts?.gross} />
-                        <MoneyCell value={amounts?.vatAmt} />
-                        <MoneyCell value={amounts?.netAmt} />
+                        <MoneyCell label="Discount amt" value={amounts?.discountAmt} />
+                        <MoneyCell label="Gross amt" value={amounts?.gross} />
+                        <MoneyCell label="Vat amt" value={amounts?.vatAmt} />
+                        <MoneyCell label="Net amt" value={amounts?.netAmt} />
                         <td className="border border-line px-2 py-2">
                           <div className="flex items-center gap-1">
                             <button
@@ -613,9 +615,9 @@ function Field({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-function MoneyCell({ value }: { value: number | undefined }) {
+function MoneyCell({ label, value }: { label: string; value: number | undefined }) {
   return (
-    <td className="border border-line bg-paper px-2 py-2 text-right text-sm tabular-nums">
+    <td className="border border-line bg-paper px-2 py-2 text-right text-sm tabular-nums" data-label={label}>
       {value == null ? "—" : formatMoney(value)}
     </td>
   );

@@ -135,16 +135,16 @@ export function InvoicePaper({
           </button>
         </div>
 
-        <article className="min-h-[980px] bg-white px-8 py-10 text-ink shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:px-12">
-          <header className="flex items-start justify-between gap-6 border-b border-neutral-200 pb-6">
+        <article className="min-h-[980px] bg-white px-4 py-6 text-ink shadow-[0_30px_80px_rgba(0,0,0,0.35)] sm:px-12 sm:py-10">
+          <header className="flex flex-col gap-6 border-b border-neutral-200 pb-6 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <p className="text-lg font-semibold tracking-tight">{shop.name}</p>
               <p className="text-sm font-medium tracking-[0.14em] uppercase">{shop.country}</p>
               <p className="mt-3 max-w-xs text-sm leading-5 text-neutral-600">{shop.address}</p>
               <p className="text-sm text-neutral-600">Contact: {shop.contact}</p>
             </div>
-            <div className="text-right">
-              <h2 className="text-3xl font-medium tracking-tight text-neutral-700">{title}</h2>
+            <div className="sm:text-right">
+              <h2 className="text-2xl font-medium tracking-tight text-neutral-700 sm:text-3xl">{title}</h2>
               <p className="mt-4 text-sm">
                 Voucher no: <span className="font-semibold">{draft.voucherNo || "—"}</span>
               </p>
@@ -260,7 +260,7 @@ export function InvoicePaper({
             </dl>
           ) : null}
 
-          <footer className="mt-16 grid grid-cols-3 gap-6 text-sm">
+          <footer className="mt-10 grid grid-cols-1 gap-8 text-sm sm:mt-16 sm:grid-cols-3 sm:gap-6">
             <Signature label="Prepared by:" name={draft.preparedBy} />
             <Signature label="Approved by:" name={draft.approvedBy} />
             <Signature label="Received by:" name="" />
@@ -370,7 +370,94 @@ function GeneralTable({
           </select>
         </label>
       ) : null}
-      <table className="w-full table-fixed border-collapse text-sm">
+      <div className="space-y-5 sm:hidden">
+        {invoice.lines.map((item, index) => {
+          const extended = item.unitPrice == null ? null : item.qty * item.unitPrice;
+          return (
+            <div key={item.id} className="border-b border-neutral-200 pb-5">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs text-neutral-500 tabular-nums">{index + 1}</p>
+                {editing && invoice.lines.length > 1 ? (
+                  <button
+                    type="button"
+                    onClick={() => onRemove(item.id)}
+                    className="text-[10px] tracking-wide text-danger uppercase"
+                  >
+                    Remove
+                  </button>
+                ) : null}
+              </div>
+              <div className="mt-2">
+                <LineImage url={item.imageUrl} />
+              </div>
+              {editing ? (
+                <input
+                  value={item.name}
+                  onChange={(event) => onChange(item.id, { name: event.target.value })}
+                  className="mt-3 w-full border-b border-neutral-300 bg-transparent py-1 text-sm outline-none"
+                />
+              ) : (
+                <p className="mt-3 text-sm leading-5 break-words">{item.name}</p>
+              )}
+              <dl className="mt-3 grid grid-cols-3 gap-3 text-sm">
+                <div>
+                  <dt className="text-[11px] tracking-[0.12em] text-neutral-500 uppercase">Qty</dt>
+                  <dd className="mt-1 tabular-nums">
+                    {editing ? (
+                      <input
+                        type="number"
+                        min={1}
+                        value={item.qty}
+                        onChange={(event) =>
+                          onChange(item.id, { qty: Math.max(1, Number(event.target.value) || 1) })
+                        }
+                        className="w-full border-b border-neutral-300 bg-transparent outline-none"
+                      />
+                    ) : (
+                      item.qty
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] tracking-[0.12em] text-neutral-500 uppercase">Unit price</dt>
+                  <dd className="mt-1 tabular-nums">
+                    {editing ? (
+                      <input
+                        type="number"
+                        min={0}
+                        step="0.01"
+                        value={item.unitPrice ?? ""}
+                        onChange={(event) => {
+                          const raw = event.target.value;
+                          onChange(item.id, { unitPrice: raw === "" ? null : Number(raw) });
+                        }}
+                        className="w-full border-b border-neutral-300 bg-transparent outline-none"
+                      />
+                    ) : item.unitPrice == null ? (
+                      "—"
+                    ) : (
+                      formatMoney(item.unitPrice)
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-[11px] tracking-[0.12em] text-neutral-500 uppercase">Extended</dt>
+                  <dd className="mt-1 font-medium tabular-nums">
+                    {extended == null ? "—" : formatMoney(extended)}
+                  </dd>
+                </div>
+              </dl>
+            </div>
+          );
+        })}
+        <div className="flex items-center justify-between text-sm font-semibold">
+          <span>Total</span>
+          <span className="tabular-nums">
+            {formatQty(invoice.totalQty)} · {formatMoney(invoice.subtotal)}
+          </span>
+        </div>
+      </div>
+      <table className="hidden w-full table-fixed border-collapse text-sm sm:table">
         <colgroup>
           <col className="w-10" />
           <col className="w-52" />
@@ -496,7 +583,52 @@ function DeliveryTable({
   onSerial: (id: string, serial: string) => void;
 }) {
   return (
-    <table className="mt-6 w-full table-fixed border-collapse text-sm">
+    <div className="mt-6">
+    <div className="space-y-5 sm:hidden">
+      {invoice.lines.map((item, index) => (
+        <div key={item.id} className="border-b border-neutral-200 pb-5">
+          <p className="text-xs text-neutral-500 tabular-nums">{index + 1}</p>
+          <p className="mt-2 text-sm leading-5 break-words">{item.name}</p>
+          {item.serials.length > 0 ? (
+            <p className="mt-1 text-xs leading-4 break-words text-neutral-500">
+              S/N {item.serials.join(", ")}
+            </p>
+          ) : null}
+          <dl className="mt-3 grid grid-cols-3 gap-3 text-sm">
+            <div>
+              <dt className="text-[11px] tracking-[0.12em] text-neutral-500 uppercase">SKU</dt>
+              <dd className="mt-1 break-words">{item.sku || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] tracking-[0.12em] text-neutral-500 uppercase">Barcode</dt>
+              <dd className="mt-1 break-words">{item.barcode || "—"}</dd>
+            </div>
+            <div>
+              <dt className="text-[11px] tracking-[0.12em] text-neutral-500 uppercase">Qty</dt>
+              <dd className="mt-1 tabular-nums">{item.qty}</dd>
+            </div>
+          </dl>
+          {canWrite ? (
+            <button
+              type="button"
+              onClick={() => {
+                const serial = window.prompt("Serial number");
+                if (!serial?.trim()) return;
+                onSerial(item.id, serial.trim());
+              }}
+              className="mt-3 rounded bg-[#0f8f7a] px-2 py-1 text-[11px] font-medium text-white"
+            >
+              Add S/N
+            </button>
+          ) : null}
+        </div>
+      ))}
+      <div className="flex items-center justify-between text-sm font-semibold">
+        <span>Total</span>
+        <span className="tabular-nums">{formatQty(invoice.totalQty)}</span>
+      </div>
+    </div>
+    <table className="hidden w-full table-fixed border-collapse text-sm sm:table">
       <colgroup>
         <col className="w-10" />
         <col />
@@ -560,6 +692,7 @@ function DeliveryTable({
         </tr>
       </tbody>
     </table>
+    </div>
   );
 }
 

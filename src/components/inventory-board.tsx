@@ -76,8 +76,8 @@ export function InventoryBoard({
         />
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[760px] border-t border-line text-left text-sm">
+      <div className="sm:overflow-x-auto">
+        <table className="gp-mobile-rows w-full min-w-[760px] border-t border-line text-left text-sm">
           <thead className="text-[11px] tracking-[0.14em] text-muted uppercase">
             <tr>
               <th className="w-12 px-4 py-3 font-medium">
@@ -118,12 +118,24 @@ export function InventoryBoard({
                         className="h-4 w-4 accent-copper-deep"
                       />
                     </td>
-                    <td className="bg-paper px-4 py-4 text-muted">{line.productId}</td>
-                    <td className="px-4 py-4 font-medium">{line.name}</td>
-                    <td className="px-4 py-4">{line.sku}</td>
-                    <td className="px-4 py-4">{line.uom}</td>
-                    <td className="px-4 py-4">{qty.format(line.onHand)}</td>
-                    <td className={`px-4 py-4 ${statusClass(status)}`}>{status}</td>
+                    <td className="bg-paper px-4 py-4 text-muted" data-label="ID">
+                      {line.productId}
+                    </td>
+                    <td className="px-4 py-4 font-medium" data-label="Product">
+                      {line.name}
+                    </td>
+                    <td className="px-4 py-4" data-label="SKU">
+                      {line.sku}
+                    </td>
+                    <td className="px-4 py-4" data-label="UOM">
+                      {line.uom}
+                    </td>
+                    <td className="px-4 py-4" data-label="Onhand">
+                      {qty.format(line.onHand)}
+                    </td>
+                    <td className={`px-4 py-4 ${statusClass(status)}`} data-label="Stock status">
+                      {status}
+                    </td>
                   </tr>
                 );
               })
