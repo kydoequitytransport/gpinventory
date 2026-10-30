@@ -369,6 +369,7 @@ export function InvoiceForm({
                 <thead>
                   <tr className="bg-paper text-left text-[11px] tracking-[0.12em] text-muted uppercase">
                     <th className="border border-line px-2 py-2 font-medium">#</th>
+                    <th className="border border-line px-2 py-2 font-medium" />
                     <th className="border border-line px-2 py-2 font-medium">Product</th>
                     <th className="border border-line px-2 py-2 font-medium">Quantity</th>
                     <th className="border border-line px-2 py-2 font-medium">Code / serial</th>
@@ -388,6 +389,17 @@ export function InvoiceForm({
                     return (
                       <tr key={item.id} className="align-top">
                         <td className="border border-line px-2 py-2 tabular-nums">{index + 1}</td>
+                        <td className="border border-line px-2 py-2 align-middle">
+                          {item.imageUrl ? (
+                            // The address was copied from the product when this line was chosen.
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.imageUrl}
+                              alt=""
+                              className="h-24 w-auto max-w-48 rounded object-contain"
+                            />
+                          ) : null}
+                        </td>
                         <td className="border border-line px-2 py-2">
                           <input
                             value={productQuery?.id === item.id ? productQuery.text : item.name}
@@ -402,15 +414,6 @@ export function InvoiceForm({
                               products={products}
                               query={productQuery.text}
                               onPick={(product) => pickProduct(item.id, product)}
-                            />
-                          ) : null}
-                          {item.imageUrl ? (
-                            // The address was copied from the product when this line was chosen.
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img
-                              src={item.imageUrl}
-                              alt=""
-                              className="mt-2 h-24 w-auto max-w-48 rounded object-contain"
                             />
                           ) : null}
                           <dl className="mt-2 space-y-1 text-[10px] tracking-wide text-muted uppercase">

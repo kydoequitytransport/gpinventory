@@ -373,6 +373,7 @@ function GeneralTable({
       <table className="w-full table-fixed border-collapse text-sm">
         <colgroup>
           <col className="w-10" />
+          <col className="w-52" />
           <col />
           <col className="w-16" />
           <col className="w-28" />
@@ -381,6 +382,7 @@ function GeneralTable({
         <thead>
           <tr className="bg-neutral-100 text-left text-[11px] tracking-[0.14em] text-neutral-500 uppercase">
             <th className="border border-neutral-200 px-2 py-2 font-medium">#</th>
+            <th className="border border-neutral-200 px-2 py-2 font-medium" />
             <th className="border border-neutral-200 px-2 py-2 font-medium">Item desc</th>
             <th className="border border-neutral-200 px-2 py-2 text-right font-medium">Qty</th>
             <th className="border border-neutral-200 px-2 py-2 text-right font-medium">Unit price</th>
@@ -392,20 +394,20 @@ function GeneralTable({
             const extended = item.unitPrice == null ? null : item.qty * item.unitPrice;
             return (
               <tr key={item.id}>
-                <td className="border border-neutral-200 px-2 py-2 tabular-nums">{index + 1}</td>
-                <td className="border border-neutral-200 px-2 py-2">
-                  <div className="flex min-w-0 items-center gap-3">
-                    <LineImage url={item.imageUrl} />
-                    {editing ? (
-                      <input
-                        value={item.name}
-                        onChange={(event) => onChange(item.id, { name: event.target.value })}
-                        className="min-w-0 flex-1 bg-transparent outline-none"
-                      />
-                    ) : (
-                      <p className="min-w-0 flex-1 leading-5 break-words">{item.name}</p>
-                    )}
-                  </div>
+                <td className="border border-neutral-200 px-2 py-2 align-middle tabular-nums">{index + 1}</td>
+                <td className="border border-neutral-200 px-2 py-2 align-middle">
+                  <LineImage url={item.imageUrl} />
+                </td>
+                <td className="border border-neutral-200 px-2 py-2 align-middle">
+                  {editing ? (
+                    <input
+                      value={item.name}
+                      onChange={(event) => onChange(item.id, { name: event.target.value })}
+                      className="w-full min-w-0 bg-transparent outline-none"
+                    />
+                  ) : (
+                    <p className="leading-5 break-words">{item.name}</p>
+                  )}
                 </td>
                 <td className="border border-neutral-200 px-2 py-2 text-right tabular-nums">
                   {editing ? (
@@ -459,7 +461,7 @@ function GeneralTable({
             );
           })}
           <tr className="font-semibold">
-            <td className="border border-neutral-200 px-2 py-2" colSpan={2}>
+            <td className="border border-neutral-200 px-2 py-2" colSpan={3}>
               Total
             </td>
             <td className="border border-neutral-200 px-2 py-2 text-right tabular-nums">
@@ -516,19 +518,14 @@ function DeliveryTable({
       <tbody>
         {invoice.lines.map((item, index) => (
           <tr key={item.id}>
-            <td className="border border-neutral-200 px-2 py-2 tabular-nums">{index + 1}</td>
-            <td className="border border-neutral-200 px-2 py-2">
-              <div className="flex min-w-0 items-center gap-3">
-                <LineImage url={item.imageUrl} />
-                <div className="min-w-0 flex-1">
-                  <p className="leading-5 break-words">{item.name}</p>
-                  {item.serials.length > 0 ? (
-                    <p className="mt-1 text-xs leading-4 break-words text-neutral-500">
-                      S/N {item.serials.join(", ")}
-                    </p>
-                  ) : null}
-                </div>
-              </div>
+            <td className="border border-neutral-200 px-2 py-2 align-middle tabular-nums">{index + 1}</td>
+            <td className="border border-neutral-200 px-2 py-2 align-middle">
+              <p className="leading-5 break-words">{item.name}</p>
+              {item.serials.length > 0 ? (
+                <p className="mt-1 text-xs leading-4 break-words text-neutral-500">
+                  S/N {item.serials.join(", ")}
+                </p>
+              ) : null}
             </td>
             <td className="border border-neutral-200 px-2 py-2 break-words">{item.sku || "—"}</td>
             <td className="border border-neutral-200 px-2 py-2 break-words">{item.barcode || ""}</td>
