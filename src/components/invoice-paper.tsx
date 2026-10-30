@@ -469,7 +469,7 @@ function GeneralTable({
         <thead>
           <tr className="bg-neutral-100 text-left text-[11px] tracking-[0.14em] text-neutral-500 uppercase">
             <th className="border border-neutral-200 px-2 py-2 font-medium">#</th>
-            <th className="border border-neutral-200 px-2 py-2 font-medium" />
+            <th className="border border-neutral-200 px-2 py-2 font-medium">Image</th>
             <th className="border border-neutral-200 px-2 py-2 font-medium">Item desc</th>
             <th className="border border-neutral-200 px-2 py-2 text-right font-medium">Qty</th>
             <th className="border border-neutral-200 px-2 py-2 text-right font-medium">Unit price</th>
