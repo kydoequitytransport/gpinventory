@@ -499,6 +499,46 @@ export function normalizeInvoice(raw: Invoice): Invoice {
   };
 }
 
+export function matchLineProducts(invoice: Invoice, products: InvoiceCatalogProduct[]): Invoice {
+  return {
+    ...invoice,
+    lines: invoice.lines.map((item) => {
+      const product = findCatalogProduct(products, item);
+      if (!product) return { ...item, unitPrice: item.unitPrice ?? 0 };
+      return {
+        ...item,
+        name: product.name,
+        sku: product.sku,
+        unit: product.unit || item.unit || "1 Piece",
+        onHand: product.onHand,
+        barcode: product.barcode,
+        imageUrl: product.imageUrl,
+        unitPrice: item.unitPrice == null ? product.sellingPrice : item.unitPrice,
+        serials: product.barcode ? [product.barcode] : item.serials,
+      };
+    }),
+  };
+}
+
+function findCatalogProduct(products: InvoiceCatalogProduct[], item: LineItem) {
+  const sku = item.sku.trim().toLowerCase();
+  if (sku) {
+    const bySku = products.find((product) => product.sku.trim().toLowerCase() === sku);
+    if (bySku) return bySku;
+  }
+  const name = item.name.trim().toLowerCase();
+  if (!name) return undefined;
+  const exact = products.find((product) => product.name.trim().toLowerCase() === name);
+  if (exact) return exact;
+  const fuzzy = products.filter((product) => {
+    const catalogName = product.name.trim().toLowerCase();
+    const shorter = Math.min(catalogName.length, name.length);
+    if (shorter < 8) return false;
+    return catalogName.includes(name) || name.includes(catalogName);
+  });
+  return fuzzy.length === 1 ? fuzzy[0] : undefined;
+}
+
 export function applyInvoiceAutofill(invoice: Invoice, fill: InvoiceAutofill): Invoice {
   const named = (fill.lines ?? []).filter((item) => item.name.trim());
   const lines = named.length
@@ -507,7 +547,7 @@ export function applyInvoiceAutofill(invoice: Invoice, fill: InvoiceAutofill): I
         name: item.name.trim(),
         sku: item.sku?.trim() ?? "",
         qty: item.qty ?? 1,
-        unitPrice: item.unitPrice ?? 0,
+        unitPrice: item.unitPrice == null ? null : item.unitPrice,
         discountPct: item.discountPct ?? 0,
         barcode: item.barcode?.trim() ?? "",
         serials: item.barcode?.trim() ? [item.barcode.trim()] : [],

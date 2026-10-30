@@ -52,6 +52,7 @@ export function InvoiceBoard({
       publishInvoices(withImages);
     }
   }, [products, sample]);
+
   const [status, setStatus] = useState<InvoiceStatus>("draft");
   const [query, setQuery] = useState("");
   const [pageSize, setPageSize] = useState(25);
@@ -59,6 +60,30 @@ export function InvoiceBoard({
   const [selected, setSelected] = useState<string[]>([]);
   const [logsFor, setLogsFor] = useState<string | null>(null);
   const [open, setOpen] = useState<OpenPaper | null>(null);
+
+  useEffect(() => {
+    function openDraft() {
+      if (sessionStorage.getItem("gp-open-new-draft") !== "1") return;
+      sessionStorage.removeItem("gp-open-new-draft");
+      setOpen({ id: "new", kind: "general" });
+    }
+    openDraft();
+    window.addEventListener("gp-open-new-draft", openDraft);
+    return () => window.removeEventListener("gp-open-new-draft", openDraft);
+  }, []);
+
+  useEffect(() => {
+    function applyTab() {
+      const tab = sessionStorage.getItem("gp-invoice-tab");
+      if (tab !== "draft" && tab !== "approved" && tab !== "voided") return;
+      sessionStorage.removeItem("gp-invoice-tab");
+      setStatus(tab);
+      setPage(1);
+    }
+    applyTab();
+    window.addEventListener("gp-invoice-tab", applyTab);
+    return () => window.removeEventListener("gp-invoice-tab", applyTab);
+  }, []);
 
   const counts = useMemo(() => {
     return Object.fromEntries(

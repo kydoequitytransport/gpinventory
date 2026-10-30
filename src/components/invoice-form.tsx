@@ -3,12 +3,15 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import type { Role } from "@/lib/types";
 import {
+  applyInvoiceAutofill,
   blankLine,
   formatMoney,
   formatQty,
   lineAmounts,
+  matchLineProducts,
   priceInvoice,
   type Invoice,
+  type InvoiceAutofill,
   type InvoiceCatalogProduct,
   type LineItem,
 } from "@/lib/invoices";
@@ -33,6 +36,8 @@ export function InvoiceForm({
 }) {
   const [draft, setDraft] = useState(invoice);
   const [error, setError] = useState("");
+  const [reading, setReading] = useState(false);
+  const [readNote, setReadNote] = useState("");
   const [sourceName, setSourceName] = useState(invoice.sourceFileName);
   const [productQuery, setProductQuery] = useState<{ id: string; text: string } | null>(null);
   const sourceFile = useRef<File | null>(null);
@@ -73,6 +78,40 @@ export function InvoiceForm({
       imageUrl: product.imageUrl,
     });
     setProductQuery(null);
+  }
+
+  async function readSource() {
+    const file = sourceFile.current;
+    if (!file || reading) return;
+    setReading(true);
+    setError("");
+    setReadNote("");
+    try {
+      const body = new FormData();
+      body.set("file", file);
+      body.set(
+        "catalog",
+        JSON.stringify(
+          products.map((product) => ({
+            name: product.name,
+            sku: product.sku,
+            sellingPrice: product.sellingPrice,
+          })),
+        ),
+      );
+      const response = await fetch("/api/invoice-read", { method: "POST", body });
+      const payload = (await response.json()) as InvoiceAutofill & { error?: string };
+      if (!response.ok) {
+        setError(payload.error || "The photo could not be read.");
+        return;
+      }
+      commit(matchLineProducts(applyInvoiceAutofill(draft, payload), products));
+      setReadNote("Filled from the photo.");
+    } catch {
+      setError("The photo could not be read.");
+    } finally {
+      setReading(false);
+    }
   }
 
   function save() {
@@ -141,35 +180,42 @@ export function InvoiceForm({
           </div>
 
           <div className="border-b border-line px-5 py-4">
-            <label className="flex cursor-pointer flex-col gap-2 rounded-xl border border-dashed border-line bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <span>
-                <span className="block text-sm font-medium">Upload for autofill</span>
-                <span className="mt-1 block text-xs leading-5 text-muted">
-                  Photo or PDF. The file stays on this draft and waits for the AI reader.
-                  Nothing is sent yet.
-                </span>
+            <div className="flex flex-col gap-3 rounded-xl border border-dashed border-line bg-paper px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium">Upload a photo to fill this draft</p>
+                <p className="mt-1 text-xs leading-5 text-muted">Photo of the paper invoice.</p>
                 {sourceName ? (
-                  <span className="mt-2 inline-flex rounded-full bg-white px-2 py-1 text-[11px] tracking-wide text-moss uppercase">
-                    Parked for AI · {sourceName}
-                  </span>
+                  <p className="mt-2 text-xs text-moss">{sourceName}</p>
                 ) : null}
-              </span>
-              <span className="inline-flex h-9 items-center rounded-lg bg-ink px-3 text-sm text-white">
-                Choose file
-              </span>
-              <input
-                type="file"
-                accept="image/*,.pdf,application/pdf"
-                className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (!file) return;
-                  sourceFile.current = file;
-                  setSourceName(file.name);
-                  setDraft({ ...draft, sourceFileName: file.name });
-                }}
-              />
-            </label>
+                {readNote ? <p className="mt-1 text-xs text-moss">{readNote}</p> : null}
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <label className="inline-flex h-9 cursor-pointer items-center rounded-lg bg-ink px-3 text-sm text-white">
+                  Choose photo
+                  <input
+                    type="file"
+                    accept="image/*,.pdf,application/pdf"
+                    className="sr-only"
+                    onChange={(event) => {
+                      const file = event.target.files?.[0];
+                      if (!file) return;
+                      sourceFile.current = file;
+                      setSourceName(file.name);
+                      setReadNote("");
+                      setDraft({ ...draft, sourceFileName: file.name });
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  onClick={readSource}
+                  disabled={!sourceName || reading}
+                  className="inline-flex h-9 items-center rounded-lg border border-ink px-3 text-sm disabled:opacity-40"
+                >
+                  {reading ? "Reading…" : "Fill draft"}
+                </button>
+              </div>
+            </div>
           </div>
 
           <div className="grid gap-4 px-5 py-5 sm:grid-cols-2 xl:grid-cols-4">
