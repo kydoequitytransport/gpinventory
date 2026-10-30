@@ -370,7 +370,14 @@ function GeneralTable({
           </select>
         </label>
       ) : null}
-      <table className="w-full border-collapse text-sm">
+      <table className="w-full table-fixed border-collapse text-sm">
+        <colgroup>
+          <col className="w-10" />
+          <col />
+          <col className="w-16" />
+          <col className="w-28" />
+          <col className="w-28" />
+        </colgroup>
         <thead>
           <tr className="bg-neutral-100 text-left text-[11px] tracking-[0.14em] text-neutral-500 uppercase">
             <th className="border border-neutral-200 px-2 py-2 font-medium">#</th>
@@ -387,15 +394,18 @@ function GeneralTable({
               <tr key={item.id}>
                 <td className="border border-neutral-200 px-2 py-2 tabular-nums">{index + 1}</td>
                 <td className="border border-neutral-200 px-2 py-2">
-                  {editing ? (
-                    <input
-                      value={item.name}
-                      onChange={(event) => onChange(item.id, { name: event.target.value })}
-                      className="w-full bg-transparent outline-none"
-                    />
-                  ) : (
-                    item.name
-                  )}
+                  <div className="flex min-w-0 items-center gap-3">
+                    <LineImage url={item.imageUrl} />
+                    {editing ? (
+                      <input
+                        value={item.name}
+                        onChange={(event) => onChange(item.id, { name: event.target.value })}
+                        className="min-w-0 flex-1 bg-transparent outline-none"
+                      />
+                    ) : (
+                      <p className="min-w-0 flex-1 leading-5 break-words">{item.name}</p>
+                    )}
+                  </div>
                 </td>
                 <td className="border border-neutral-200 px-2 py-2 text-right tabular-nums">
                   {editing ? (
@@ -484,7 +494,15 @@ function DeliveryTable({
   onSerial: (id: string, serial: string) => void;
 }) {
   return (
-    <table className="mt-6 w-full border-collapse text-sm">
+    <table className="mt-6 w-full table-fixed border-collapse text-sm">
+      <colgroup>
+        <col className="w-10" />
+        <col />
+        <col className="w-28" />
+        <col className="w-28" />
+        <col className="w-16" />
+        <col className="w-20" />
+      </colgroup>
       <thead>
         <tr className="bg-neutral-100 text-left text-[11px] tracking-[0.14em] text-neutral-500 uppercase">
           <th className="border border-neutral-200 px-2 py-2 font-medium">#</th>
@@ -500,13 +518,20 @@ function DeliveryTable({
           <tr key={item.id}>
             <td className="border border-neutral-200 px-2 py-2 tabular-nums">{index + 1}</td>
             <td className="border border-neutral-200 px-2 py-2">
-              {item.name}
-              {item.serials.length > 0 ? (
-                <p className="mt-1 text-xs text-neutral-500">S/N {item.serials.join(", ")}</p>
-              ) : null}
+              <div className="flex min-w-0 items-center gap-3">
+                <LineImage url={item.imageUrl} />
+                <div className="min-w-0 flex-1">
+                  <p className="leading-5 break-words">{item.name}</p>
+                  {item.serials.length > 0 ? (
+                    <p className="mt-1 text-xs leading-4 break-words text-neutral-500">
+                      S/N {item.serials.join(", ")}
+                    </p>
+                  ) : null}
+                </div>
+              </div>
             </td>
-            <td className="border border-neutral-200 px-2 py-2">{item.sku || "—"}</td>
-            <td className="border border-neutral-200 px-2 py-2">{item.barcode || ""}</td>
+            <td className="border border-neutral-200 px-2 py-2 break-words">{item.sku || "—"}</td>
+            <td className="border border-neutral-200 px-2 py-2 break-words">{item.barcode || ""}</td>
             <td className="border border-neutral-200 px-2 py-2 text-right tabular-nums">
               {item.qty}
             </td>
@@ -538,6 +563,15 @@ function DeliveryTable({
         </tr>
       </tbody>
     </table>
+  );
+}
+
+function LineImage({ url }: { url: string }) {
+  if (!url) return null;
+  return (
+    // Catalog photos are Cloudinary delivery URLs, outside the Next image allowlist.
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={url} alt="" className="h-24 w-auto max-w-48 shrink-0 rounded object-contain" />
   );
 }
 

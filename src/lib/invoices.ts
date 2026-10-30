@@ -1,3 +1,5 @@
+import { cloudinaryUrl } from "@/lib/cloudinary";
+
 export const invoiceStatuses = [
   { id: "draft", label: "Draft" },
   { id: "approved", label: "Approved" },
@@ -13,6 +15,17 @@ export const invoiceStatuses = [
 
 export type InvoiceStatus = (typeof invoiceStatuses)[number]["id"];
 
+export type InvoiceCatalogProduct = {
+  id: number;
+  name: string;
+  sku: string;
+  barcode: string;
+  unit: string;
+  onHand: number | null;
+  sellingPrice: number;
+  imageUrl: string;
+};
+
 export type LineItem = {
   id: string;
   name: string;
@@ -24,6 +37,7 @@ export type LineItem = {
   unitPrice: number | null;
   discountPct: number;
   serials: string[];
+  imageUrl: string;
 };
 
 export type InvoiceAutofill = {
@@ -121,6 +135,7 @@ function line(
     unitPrice,
     discountPct: 0,
     serials: [],
+    imageUrl: "",
   };
 }
 
@@ -329,6 +344,71 @@ export function priceInvoice(invoice: Invoice): Invoice {
   };
 }
 
+export function sampleFromCatalog(
+  products: InvoiceCatalogProduct[],
+  actor: string,
+  today: string,
+): Invoice | null {
+  const chosen = [...products]
+    .filter((product) => product.name.trim())
+    .sort((left, right) => right.sellingPrice - left.sellingPrice || left.name.localeCompare(right.name))
+    .slice(0, 3);
+  if (chosen.length === 0) return null;
+
+  return priceInvoice({
+    id: "gp-catalog-1",
+    voucherNo: "GRD1002901",
+    customer: "Caloocan showroom",
+    attention: "Floor",
+    deliverTo: shop.address,
+    tel: shop.contact,
+    fax: "",
+    saleDate: today,
+    cutOff: today,
+    poNo: "",
+    prNo: "",
+    drNo: "",
+    qtNo: "",
+    branch: "Caloocan",
+    terms: "7 Days",
+    siType: "Charge",
+    shippingFee: 0,
+    withholdingPct: 0,
+    salesRep: actor,
+    referredBy: "",
+    sourceFileName: "",
+    itemDiscount: 0,
+    withholding: 0,
+    totalQty: chosen.length,
+    subtotal: 0,
+    gross: 0,
+    vat: 0,
+    vatCode: "E",
+    net: 0,
+    paid: 0,
+    acquisition: "Walk-in",
+    lines: chosen.map((product) => ({
+      id: `cat-${product.id}`,
+      name: product.name,
+      sku: product.sku,
+      unit: product.unit || "1 Piece",
+      onHand: product.onHand,
+      barcode: product.barcode,
+      qty: 1,
+      unitPrice: product.sellingPrice,
+      discountPct: 0,
+      serials: product.barcode ? [product.barcode] : [],
+      imageUrl: product.imageUrl,
+    })),
+    internalRemark: "",
+    preparedBy: actor,
+    approvedBy: "",
+    actor,
+    actedAt: `${today}T09:00:00`,
+    status: "draft",
+  });
+}
+
 export function blankInvoice(actor: string): Invoice {
   const now = new Date();
   const stamp = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
@@ -373,7 +453,26 @@ export function blankLine(): LineItem {
     unitPrice: 0,
     discountPct: 0,
     serials: [],
+    imageUrl: "",
   };
+}
+
+export function attachProductImages(invoice: Invoice, products: InvoiceCatalogProduct[]): Invoice {
+  let changed = false;
+  const lines = invoice.lines.map((item) => {
+    if (item.imageUrl) return item;
+    const product = products.find((row) => sameProduct(row, item));
+    if (!product?.imageUrl) return item;
+    changed = true;
+    return { ...item, imageUrl: product.imageUrl };
+  });
+  return changed ? { ...invoice, lines } : invoice;
+}
+
+function sameProduct(product: InvoiceCatalogProduct, item: LineItem) {
+  const sku = item.sku.trim().toLowerCase();
+  if (sku && product.sku.trim().toLowerCase() === sku) return true;
+  return product.name.trim().toLowerCase() === item.name.trim().toLowerCase();
 }
 
 export function normalizeInvoice(raw: Invoice): Invoice {
@@ -395,6 +494,7 @@ export function normalizeInvoice(raw: Invoice): Invoice {
       onHand: item.onHand ?? null,
       discountPct: Number(item.discountPct) || 0,
       serials: Array.isArray(item.serials) ? item.serials : [],
+      imageUrl: cloudinaryUrl(item.imageUrl ?? "") ?? "",
     })),
   };
 }

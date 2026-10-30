@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
 import { InvoiceForm } from "@/components/invoice-form";
 import { InvoicePaper } from "@/components/invoice-paper";
@@ -11,6 +11,7 @@ import {
   subscribeInvoices,
 } from "@/lib/invoice-store";
 import {
+  attachProductImages,
   blankInvoice,
   formatActedAt,
   formatMoney,
@@ -18,6 +19,7 @@ import {
   invoiceStatuses,
   productNames,
   type Invoice,
+  type InvoiceCatalogProduct,
   type InvoiceStatus,
 } from "@/lib/invoices";
 import type { Role } from "@/lib/types";
@@ -26,8 +28,30 @@ const pageSizes = [10, 25, 50];
 
 type OpenPaper = { id: string; kind: "general" | "delivery" | "edit" };
 
-export function InvoiceBoard({ role, actorName }: { role: Role; actorName: string }) {
+export function InvoiceBoard({
+  role,
+  actorName,
+  products,
+  sample,
+}: {
+  role: Role;
+  actorName: string;
+  products: InvoiceCatalogProduct[];
+  sample: Invoice | null;
+}) {
   const records = useSyncExternalStore(subscribeInvoices, readStoredInvoices, getSeedInvoices);
+
+  useEffect(() => {
+    const current = readStoredInvoices();
+    let next = current;
+    if (sample && !next.some((item) => item.id === sample.id)) {
+      next = [sample, ...next];
+    }
+    const withImages = next.map((invoice) => attachProductImages(invoice, products));
+    if (next !== current || withImages.some((invoice, index) => invoice !== next[index])) {
+      publishInvoices(withImages);
+    }
+  }, [products, sample]);
   const [status, setStatus] = useState<InvoiceStatus>("draft");
   const [query, setQuery] = useState("");
   const [pageSize, setPageSize] = useState(25);
@@ -374,6 +398,7 @@ export function InvoiceBoard({ role, actorName }: { role: Role; actorName: strin
             invoice={paper}
             role={role}
             actorName={actorName}
+            products={products}
             onClose={() => setOpen(null)}
             onSave={(next) => {
               const saved = saveInvoice(next);
@@ -416,7 +441,7 @@ function ProductList({ products }: { products: string[] }) {
     <div className="max-w-64">
       <ul className="space-y-1">
         {visible.map((product) => (
-          <li key={product} className="text-sm leading-5 text-ink">
+          <li key={product} className="text-sm leading-5 break-words text-ink">
             {product}
           </li>
         ))}

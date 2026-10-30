@@ -9,6 +9,7 @@ import {
   lineAmounts,
   priceInvoice,
   type Invoice,
+  type InvoiceCatalogProduct,
   type LineItem,
 } from "@/lib/invoices";
 
@@ -19,18 +20,21 @@ export function InvoiceForm({
   invoice,
   role,
   actorName,
+  products,
   onClose,
   onSave,
 }: {
   invoice: Invoice;
   role: Role;
   actorName: string;
+  products: InvoiceCatalogProduct[];
   onClose: () => void;
   onSave: (invoice: Invoice) => Invoice;
 }) {
   const [draft, setDraft] = useState(invoice);
   const [error, setError] = useState("");
   const [sourceName, setSourceName] = useState(invoice.sourceFileName);
+  const [productQuery, setProductQuery] = useState<{ id: string; text: string } | null>(null);
   const sourceFile = useRef<File | null>(null);
 
   useEffect(() => {
@@ -55,6 +59,20 @@ export function InvoiceForm({
       ...draft,
       lines: draft.lines.map((item) => (item.id === id ? { ...item, ...patch } : item)),
     });
+  }
+
+  function pickProduct(id: string, product: InvoiceCatalogProduct) {
+    updateLine(id, {
+      name: product.name,
+      sku: product.sku,
+      unit: product.unit || "1 Piece",
+      onHand: product.onHand,
+      barcode: product.barcode,
+      unitPrice: product.sellingPrice,
+      serials: product.barcode ? [product.barcode] : [],
+      imageUrl: product.imageUrl,
+    });
+    setProductQuery(null);
   }
 
   function save() {
@@ -372,13 +390,31 @@ export function InvoiceForm({
                         <td className="border border-line px-2 py-2 tabular-nums">{index + 1}</td>
                         <td className="border border-line px-2 py-2">
                           <input
-                            value={item.name}
-                            onChange={(event) => updateLine(item.id, { name: event.target.value })}
+                            value={productQuery?.id === item.id ? productQuery.text : item.name}
+                            onChange={(event) => setProductQuery({ id: item.id, text: event.target.value })}
+                            onFocus={() => setProductQuery({ id: item.id, text: item.name })}
+                            onBlur={() => setProductQuery(null)}
                             placeholder="Search for product"
                             className={control}
                           />
+                          {productQuery?.id === item.id ? (
+                            <ProductMatches
+                              products={products}
+                              query={productQuery.text}
+                              onPick={(product) => pickProduct(item.id, product)}
+                            />
+                          ) : null}
+                          {item.imageUrl ? (
+                            // The address was copied from the product when this line was chosen.
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={item.imageUrl}
+                              alt=""
+                              className="mt-2 h-24 w-auto max-w-48 rounded object-contain"
+                            />
+                          ) : null}
                           <dl className="mt-2 space-y-1 text-[10px] tracking-wide text-muted uppercase">
-                            <div>Name: {item.name || "—"}</div>
+                            <div className="break-words">Name: {item.name || "—"}</div>
                             <div className="flex items-center gap-2 normal-case">
                               SKU
                               <input
@@ -584,4 +620,58 @@ function MoneyCell({ value }: { value: number | undefined }) {
 
 function options(list: string[], current: string) {
   return current && !list.includes(current) ? [current, ...list] : list;
+}
+
+function ProductMatches({
+  products,
+  query,
+  onPick,
+}: {
+  products: InvoiceCatalogProduct[];
+  query: string;
+  onPick: (product: InvoiceCatalogProduct) => void;
+}) {
+  const needle = query.trim().toLowerCase();
+  const matches = products
+    .filter((product) => {
+      if (!needle) return true;
+      return (
+        product.name.toLowerCase().includes(needle) ||
+        product.sku.toLowerCase().includes(needle)
+      );
+    })
+    .slice(0, 8);
+
+  if (matches.length === 0) {
+    return <p className="mt-2 text-xs text-muted normal-case">No product matches that search.</p>;
+  }
+
+  return (
+    <ul className="mt-2 max-h-40 overflow-y-auto rounded-md border border-line bg-white">
+      {matches.map((product) => (
+        <li key={product.id}>
+          <button
+            type="button"
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => onPick(product)}
+            className="flex w-full items-start justify-between gap-3 px-2 py-2 text-left text-xs normal-case hover:bg-paper"
+          >
+            {product.imageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={product.imageUrl} alt="" className="h-14 w-auto max-w-24 shrink-0 rounded object-contain" />
+            ) : null}
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm leading-5 break-words text-ink">{product.name}</span>
+              <span className="text-muted">
+                {product.sku || "No SKU"}
+                {product.unit ? ` · ${product.unit}` : ""}
+                {product.onHand == null ? "" : ` · ${formatQty(product.onHand)} on hand`}
+              </span>
+            </span>
+            <span className="shrink-0 tabular-nums text-ink">{formatMoney(product.sellingPrice)}</span>
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
 }
